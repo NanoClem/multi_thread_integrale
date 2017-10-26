@@ -17,13 +17,22 @@ typedef struct
   long double borne_min, borne_max;
   int coef[3];
   long double integrale;
-}Fonction;
+}Function;
+
+
+
+//Afficher la fonction polynome
+
+void printFunction(const Fonction * p)
+{
+  cout << p->coef[0] << "*x^2 + " << p->coef[1] << "*x + " << p->coef[2] << endl;
+}
 
 
 
 //Future onction thread : calcul du polynôme
 
-long double fn(long double x, Fonction * p)
+long double fn(long double x, Function * p)
 {
   return p->coef[0]*(x*x) + p->coef[1]*x + p->coef[2];
 }
@@ -32,7 +41,7 @@ long double fn(long double x, Fonction * p)
 
 //Future fonction thread
 
-void Ttrapeze(int n, Fonction * p)
+void Ttrapeze(int n, Function * p)
 {
   long double T = 0;
   long double xi, xj;
@@ -61,7 +70,7 @@ int main()
 {
   clock_t temps;
 
-  Fonction * f = new Fonction();
+  Function * f = new Function();
   int k = 100;
   f->borne_min = 0;
   f->borne_max = 3*M_PI/2;
