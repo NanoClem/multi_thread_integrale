@@ -9,7 +9,7 @@
 using namespace std;
 
 
-#define NBITERATION 100
+#define NBITERATION 1000
 #define NBTHREADS 10
 
 
@@ -24,7 +24,7 @@ typedef struct
 {
   long double min, max;
   double coef[3];
-  size_t size;
+  unsigned int size;
   long double * integral;
 }Function;
 
@@ -44,12 +44,16 @@ void printFunction(Function * p)
 
 //Afficher les éléments contenu dans le tableau d'integrale
 
-void printIntegral(const Function * _f) {
-	mtx.lock();
-	for (unsigned int i = 0; i<_f -> size; ++i)
-		cout << _f->integral[i] << " / ";
-	cout << endl;
-	mtx.unlock();
+void printIntegral(Function * _f) {
+
+  if(NBITERATION < 1000)
+  {
+  	mtx.lock();
+  	for (unsigned int i = 0; i<_f -> size; ++i)
+  		cout << _f->integral[i] << " / ";
+  	cout << endl;
+  	mtx.unlock();
+  }
 }
 
 
@@ -71,7 +75,7 @@ void Ttrapeze(Function * _p) //void * _args)
   //Function * _p = (Function *) _args;
 
   //mtx.lock();
-  cerr << "THREAD(), on est dans le thread du calcul de l'integrale \n";
+  cerr << "\n THREAD(), on est dans le thread du calcul de l'integrale \n";
   //mtx.unlock();
 
   long double T = 0.0f;
@@ -92,6 +96,9 @@ void Ttrapeze(Function * _p) //void * _args)
       _p -> integral[i] = T;
   }
 
+  printf("\n");
+  //printIntegral(_p);
+  printf("\n");
   //return(NULL);
 }
 
@@ -103,7 +110,7 @@ void Ttrapeze(Function * _p) //void * _args)
 void * partialSum(void * _args)
 {
   Function * _p = (Function *) _args;
-  //printIntegral(_p);
+  printIntegral(_p);
 
   long double * sum = new long double();
   (*sum) = 0.0f;
@@ -126,7 +133,7 @@ void * partialSum(void * _args)
 
 int main()
 {
-  pthread_t th1;
+  //pthread_t th1;
   pthread_t thtab[NBTHREADS];
   clock_t begin, end;
 
@@ -135,36 +142,45 @@ int main()
 
   Function * myFunctions = new Function[NBTHREADS];
 
-//Calcul des intégrales de chaque trapèze
+
+//Nouvelle structure pour le calcul des intégrales de chaque trapèze
   Function * _f = new Function();
   _f -> integral = new long double[NBITERATION];
+  _f -> size = NBITERATION;
+  _f -> min = 0;
+  _f -> max = 3*M_PI/2;
+
+  for(size_t i=0; i<3; ++i)
+    _f -> coef[i] = i+5;
+
   Ttrapeze(_f);
   //pthread_create(&th1, NULL, Ttrapeze, (void *) _f);
   //pthread_join(th1, NULL);
 
-  cout << "On va decouper en " << NBTHREADS << " morceaux de " << partSize << " elements" << endl;
 
+  cout << "On va decouper en " << NBTHREADS << " morceaux de " << partSize << " elements" << endl;
+  printf("\n");
 
   for(size_t i=0; i<NBTHREADS; ++i)
   {
     myFunctions[i] . size = partSize;
     myFunctions[i] . integral = new long double[partSize];
-    myFunctions[i] . min = 0;
-    myFunctions[i] . max = 3*M_PI/2;
-    myFunctions[i] . coef[0] = 5;
-    myFunctions[i] . coef[1] = 2;
-    myFunctions[i] . coef[2] = 20;
+    //myFunctions[i] . min = 0;
+    //myFunctions[i] . max = 3*M_PI/2;
+    //myFunctions[i] . coef[0] = 5;
+    //myFunctions[i] . coef[1] = 2;
+    //myFunctions[i] . coef[2] = 20;
 
     for(size_t j=0; j<partSize; ++j)
       myFunctions[i] . integral[j] = _f -> integral[partSize*i + j];
 
-    printIntegral(&myFunctions[i]);
+    //printIntegral(&myFunctions[i]);
   }
 
 
   printf("\n");
 
-  //Départ du compteur
+  //Départ du compteur des threads
   begin = clock();
 
   //Les threads
@@ -175,6 +191,7 @@ int main()
     mtx.lock();
     cerr << "lancement du thread " << th << endl;
     mtx.unlock();
+
     pthread_create(&thtab[th], NULL, partialSum, (void *) &myFunctions[th]);
   }
 
@@ -192,11 +209,14 @@ int main()
     result += (*res);
 
     mtx.lock();
-    cerr << "arrivee du thread " << th << "; r= " << *res << "; result+ = " << result << endl;
+    //cerr << "arrivee du thread " << th << "; r= " << *res << "; result+ = " << result << endl;
+    printf("arrivée du thread %zu ; r = %Lf ; result += %Lf \n", th, *res, result);
     mtx.unlock();
   }
 
+  printf("\n");
   cout << "MAIN(), Fin des threads \n";
+  printf("\n");
   printf("L'aire finale est de %Lf uA \n", result);
 
   delete [] _f;
