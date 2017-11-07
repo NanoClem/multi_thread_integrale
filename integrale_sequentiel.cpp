@@ -23,7 +23,7 @@ typedef struct
 
 //Afficher la fonction polynome
 
-void printFunction(const Fonction * p)
+void printFunction(const Function * p)
 {
   cout << p->coef[0] << "*x^2 + " << p->coef[1] << "*x + " << p->coef[2] << endl;
 }
@@ -71,7 +71,7 @@ int main()
   clock_t temps;
 
   Function * f = new Function();
-  int k = 100;
+  long int k = 1000;
   f->borne_min = 0;
   f->borne_max = 3*M_PI/2;
   f->coef[0] = 5;
