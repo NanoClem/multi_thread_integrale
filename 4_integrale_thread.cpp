@@ -9,7 +9,7 @@
 using namespace std;
 
 
-#define NBITERATION 1000000
+#define NBITERATION 1000
 #define NBTHREADS 10
 
 
@@ -19,17 +19,18 @@ mutex mtx;
 
 //VARIABLES GLOBALES
 
-long double temp_integral = 0;
-float partSize = NBITERATION  / NBTHREADS;
+long double temp_integral = 0;					//Valeur finale de l'intégrale
+float partSize = NBITERATION  / NBTHREADS;		//Nombre de trapèzes calculés par thread
 
 
 
-//STRUCTURE DE DONNEES : fonction polynomiale du 2nd degré
+//STRUCTURE DE DONNEES :
+//Fonction polynomiale du 2nd degré
 
 typedef struct
 {
-  long double min, max;
-  double coef[3];
+  long double min, max;		//Bornes minorante et majorante de la fonction
+  double coef[3];			//Coefficients du polynôme du second dégré
 }Function;
 
 
@@ -118,28 +119,28 @@ int main()
 
   // DECOUPAGE
 
-  cout << "On va decouper en " << NBTHREADS << " morceaux de " << partSize << " elements" << endl;
+  printf("\n");
+  cout << "On va decouper le calcul en " << NBTHREADS << " thread(s) de " << partSize << " trapèzes chacun" << endl;
   printf("\n");
 
   for(size_t i=0; i<NBTHREADS; ++i)
   {
     myFunctions[i] . min = 0;
-    myFunctions[i] . max = 3*M_PI/2;
+    myFunctions[i] . max = 5;
     myFunctions[i] . coef[0] = 5;
     myFunctions[i] . coef[1] = 2;
     myFunctions[i] . coef[2] = 20;
   }
 
 
-  printf("\n");
-
 
   //DEPART DU COMPTEUR
   begin = clock();
 
-
+  
+  
   //DEPART DES THREADS
-  cout << "MAIN(), Données operationnelles, depart des threads \n";
+  cout << "MAIN(), Données operationnelles, depart des threads \n \n";
 
   for(size_t th=0; th<NBTHREADS; ++th)
   {
@@ -147,28 +148,37 @@ int main()
     pthread_create(&thtab[th], NULL, Ttrapeze, (void *) &myFunctions[th]);
   }
 
-
+  printf("\n");
   cerr << "tous les thread sont lances \n";
+  printf("\n");
 
 
   for(size_t th=0; th<NBTHREADS; ++th)
   {
     pthread_join(thtab[th], NULL);
+	printf("arrivée du thread %zu \n", th);
   }
-
+	
+	
+  delete [] myFunctions;
+  
+  
   printf("\n");
   cout << "MAIN(), Fin des threads \n";
   printf("\n");
-  printf("L'aire finale est de %Lf uA \n", temp_integral);
-
-  delete [] myFunctions;
-
-  //Fin du compteur
+  
+  
+  //FIN DU COMPTEUR
   end = clock();
-  printf("Le programme s'est execute en %Lf secondes \n", (long double)(end-begin)/CLOCKS_PER_SEC);
+  
+  printf("                                          ---------------------RESULTATS--------------------- \n");
   printf("\n");
-
-
+  printf("                                           L'aire finale est de %Lf uA \n", temp_integral);
+  printf("                                           Le programme s'est execute en %Lf secondes \n", (long double)(end-begin)/CLOCKS_PER_SEC);
   printf("\n");
+  printf("                                          --------------------------------------------------- \n");
+  printf("\n");
+  
+  
   return(EXIT_SUCCESS);
 }
