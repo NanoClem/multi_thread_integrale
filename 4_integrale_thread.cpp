@@ -9,7 +9,7 @@
 using namespace std;
 
 
-#define NBITERATION 1000
+#define NBITERATION 1000000
 #define NBTHREADS 10
 
 
@@ -63,11 +63,10 @@ long double fn(long double x, Function * _p)
 void IntegralSum(long double localDataSum)
 {
   mtx.lock();
-
   temp_integral += localDataSum;
-  //cerr << "integral_sum += " << localDataSum << "\n";
-
   mtx.unlock();
+
+  //printf("Somme des intégrales = %Lf \n", temp_integral);
 }
 
 
@@ -97,8 +96,6 @@ void * Ttrapeze(void * _args)
       localSum += T;
       IntegralSum(localSum);
   }
-
-  printf("\n");
   return(NULL);
 }
 
@@ -146,11 +143,7 @@ int main()
 
   for(size_t th=0; th<NBTHREADS; ++th)
   {
-    mtx.lock();
     cerr << "lancement du thread " << th << endl;
-    printf("arrivée du thread %zu ; result += %Lf \n", th, temp_integral);
-    mtx.unlock();
-
     pthread_create(&thtab[th], NULL, Ttrapeze, (void *) &myFunctions[th]);
   }
 
@@ -161,10 +154,6 @@ int main()
   for(size_t th=0; th<NBTHREADS; ++th)
   {
     pthread_join(thtab[th], NULL);
-
-    mtx.lock();
-    printf("arrivée du thread %zu ; result += %Lf \n", th, temp_integral);
-    mtx.unlock();
   }
 
   printf("\n");
