@@ -126,7 +126,7 @@ int main()
   for(size_t i=0; i<NBTHREADS; ++i)
   {
     myFunctions[i] . min = 0;
-    myFunctions[i] . max = 5;
+    myFunctions[i] . max = 3*M_PI/2;
     myFunctions[i] . coef[0] = 5;
     myFunctions[i] . coef[1] = 2;
     myFunctions[i] . coef[2] = 20;
