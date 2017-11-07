@@ -87,8 +87,8 @@ void * Ttrapeze(void * _args)
 
   for(size_t i=0; i<partSize; ++i)
   {
-      xi = a+(b-a)*i/(float)NBITERATION;
-      xj = a+(b-a)*(i+1)/(float)NBITERATION;
+      xi = a+(b-a)*i / double(partSize);
+      xj = a+(b-a)*(i+1) / double(partSize);
       T = (xj-xi)/2.0f * (fn(xi,_p)+fn(xj,_p));
 
       if(T<0 || a>b)
@@ -171,12 +171,12 @@ int main()
   //FIN DU COMPTEUR
   end = clock();
   
-  printf("                                          ---------------------RESULTATS--------------------- \n");
+  printf("                                               ---------------------RESULTATS--------------------- \n");
   printf("\n");
-  printf("                                           L'aire finale est de %Lf uA \n", temp_integral);
-  printf("                                           Le programme s'est execute en %Lf secondes \n", (long double)(end-begin)/CLOCKS_PER_SEC);
+  printf("                                                 L'aire finale est de %Lf uA \n", temp_integral);
+  printf("                                                 Le programme s'est exécuté en %Lf secondes \n", (long double)(end-begin)/CLOCKS_PER_SEC);
   printf("\n");
-  printf("                                          --------------------------------------------------- \n");
+  printf("                                               --------------------------------------------------- \n");
   printf("\n");
   
   
