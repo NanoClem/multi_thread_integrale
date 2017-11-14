@@ -73,7 +73,7 @@ int main()
   Function * f = new Function();
   long int k = 1000;
   f->borne_min = 0;
-  f->borne_max = 3*M_PI/2;
+  f->borne_max = 5;  //3*M_PI/2;
   f->coef[0] = 5;
   f->coef[1] = 2;
   f->coef[2] = 20;

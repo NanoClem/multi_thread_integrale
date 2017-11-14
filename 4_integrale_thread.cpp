@@ -18,7 +18,6 @@ mutex mtx;
 
 
 //VARIABLES GLOBALES
-
 long double temp_integral = 0;					//Valeur finale de l'intégrale
 float partSize = NBITERATION  / NBTHREADS;		//Nombre de trapèzes calculés par thread
 
@@ -30,7 +29,7 @@ float partSize = NBITERATION  / NBTHREADS;		//Nombre de trapèzes calculés par 
 typedef struct
 {
   long double min, max;		//Bornes minorante et majorante de la fonction
-  double coef[3];			//Coefficients du polynôme du second dégré
+  double coef[3];			//Coefficients du polynôme
 }Function;
 
 
@@ -40,10 +39,8 @@ typedef struct
 
 void printFunction(Function * p)
 {
-  mtx.lock();
-  cerr << "THREAD(), on est dans le thread d'affichage \n";
+  cerr << "On est dans la fonction d'affichage de la fonction \n";
   cout << "f(x) = " << p->coef[0] << "*x^2 + " << p->coef[1] << "*x + " << p->coef[2] << endl;
-  mtx.unlock();
 }
 
 
@@ -73,7 +70,8 @@ void IntegralSum(long double localDataSum)
 
 
 
-//FONCTION THREAD : calcul de l'integrale de chaque trapèze et la stocke dans
+//FONCTION THREAD : calcul de l'integrale de chaque trapèze et additionne le résultat avec
+// la variable globale temp_integrale pour chaque itération
 void * Ttrapeze(void * _args)
 {
   Function * _p = (Function *) _args;
@@ -85,18 +83,22 @@ void * Ttrapeze(void * _args)
   long double b = _p->max;
 
 
-  for(size_t i=0; i<partSize; ++i)
+  for(size_t i=0; i < size_t(partSize); ++i)
   {
-      xi = a+(b-a)*i / double(partSize);
-      xj = a+(b-a)*(i+1) / double(partSize);
+      xi = a+(b-a)*i / double(NBITERATION);
+      xj = a+(b-a)*(i+1) / double(NBITERATION);
       T = (xj-xi)/2.0f * (fn(xi,_p)+fn(xj,_p));
 
       if(T<0 || a>b)
         T = -T;
 
       localSum += T;
-      IntegralSum(localSum);
   }
+  printf("\n");
+  printf("%Lf \n", localSum);
+  printf("%Lf \n", temp_integral);
+  IntegralSum(localSum);
+  printf("%Lf \n", temp_integral);
   return(NULL);
 }
 
@@ -117,6 +119,7 @@ int main()
   Function * myFunctions = new Function[NBTHREADS];
 
 
+
   // DECOUPAGE
 
   printf("\n");
@@ -126,7 +129,7 @@ int main()
   for(size_t i=0; i<NBTHREADS; ++i)
   {
     myFunctions[i] . min = 0;
-    myFunctions[i] . max = 3*M_PI/2;
+    myFunctions[i] . max = 5;
     myFunctions[i] . coef[0] = 5;
     myFunctions[i] . coef[1] = 2;
     myFunctions[i] . coef[2] = 20;
@@ -134,11 +137,18 @@ int main()
 
 
 
+  //LA FONCTION POLYNOMIALE
+
+  printf("\n");
+  printFunction(myFunctions);
+
+
+
   //DEPART DU COMPTEUR
   begin = clock();
 
-  
-  
+
+
   //DEPART DES THREADS
   cout << "MAIN(), Données operationnelles, depart des threads \n \n";
 
@@ -158,27 +168,26 @@ int main()
     pthread_join(thtab[th], NULL);
 	printf("arrivée du thread %zu \n", th);
   }
-	
-	
+
+
   delete [] myFunctions;
-  
-  
+
+
   printf("\n");
   cout << "MAIN(), Fin des threads \n";
   printf("\n");
-  
-  
+
+
   //FIN DU COMPTEUR
   end = clock();
-  
   printf("                                               ---------------------RESULTATS--------------------- \n");
   printf("\n");
-  printf("                                                 L'aire finale est de %Lf uA \n", temp_integral);
+  printf("                                                 L'aire finale est de %Lf uA pour %d itération(s) \n", temp_integral, NBITERATION);
   printf("                                                 Le programme s'est exécuté en %Lf secondes \n", (long double)(end-begin)/CLOCKS_PER_SEC);
   printf("\n");
   printf("                                               --------------------------------------------------- \n");
   printf("\n");
-  
-  
+
+
   return(EXIT_SUCCESS);
 }
