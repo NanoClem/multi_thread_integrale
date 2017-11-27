@@ -4,6 +4,8 @@
 # 14/11/2017 - clement.decoopman@univ.etu-amu.fr
 
 
+#!/bin/bash
+
 # Definition of particular target
 # only if files named the same way exist
 .PHONY: clean, distclean
@@ -43,7 +45,7 @@ all :: $(EXECPP)
 	$(CXX) -c $(CXXFLAGS) $*.cpp
 
 
-prog : 4_integrale_thread.o
+prog : integrale_thread.o
 	$(CXX) -o $@ $^ $(THREAD)
 
 depends :
