@@ -1,0 +1,2 @@
+4_integrale_thread.o: 4_integrale_thread.cpp
+integrale_sequentiel.o: integrale_sequentiel.cpp
