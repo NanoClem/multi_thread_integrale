@@ -47,8 +47,8 @@ int main()
   int nthread;
   
   //DEMANDE DU NOMBRE DE THREADS
-  cout<<"Combien voulez vous de threads? -> ";
-  cin>>nthread;
+  cout << "Combien voulez vous de threads? > ";
+  cin  >> nthread;
 
   //LA FONCTION POLYNOMIALE
   printf("\n");
@@ -92,8 +92,7 @@ int main()
         T = -T;
       myFunction->Sum += T;
 	}
-  
-}
+  }
   
   end = clock();
   printf("                                               ---------------------RESULTATS--------------------- \n");
