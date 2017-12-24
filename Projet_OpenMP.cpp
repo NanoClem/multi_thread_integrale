@@ -23,11 +23,13 @@ typedef struct
 
 
 //FONCTION : afficher le polynome
+
 void printFunction(Function * p)
 {
   cerr << "On est dans la fonction d'affichage de la fonction \n";
   cout << "f(x) = " << p->coef[0] << "*x^2 + " << p->coef[1] << "*x + " << p->coef[2] << endl;
 }
+
 
 //CALCUL DU POLYNOME
 
@@ -45,7 +47,7 @@ int main()
   clock_t begin, end;
   Function * myFunction = new Function;
   int nthread;
-  
+
   //DEMANDE DU NOMBRE DE THREADS
   cout << "Combien voulez vous de threads? > ";
   cin  >> nthread;
@@ -53,7 +55,7 @@ int main()
   //LA FONCTION POLYNOMIALE
   printf("\n");
   printFunction(myFunction);
-  
+
   printf("\n");
   cout << "On va decouper le calcul en " << nthread << " thread(s) de " << NBITERATION/nthread << " trapèzes chacun" << endl;
   printf("\n");
@@ -64,16 +66,16 @@ int main()
   myFunction->coef[1] = 2;
   myFunction->coef[2] = 20;
   myFunction->Sum = 0.0f;
-  
+
   long double T = 0.0f;
   long double xi, xj;
   long double a = 0;
   long double b = 5;
 
   //DEPART DU COMPTEUR
-  
+
   begin=clock();
-  
+
   #pragma omp parallel sections num_threads(nthread)
   {
 
@@ -87,13 +89,13 @@ int main()
 	  long double fxi = myFunction->coef[0]*(xi*xi) + myFunction->coef[1]*xi + myFunction->coef[2];
 	  long double fxj = myFunction->coef[0]*(xj*xj) + myFunction->coef[1]*xj + myFunction->coef[2];
       T = (xj-xi)/2.0f * (fxi+fxj);
-      
+
       if(T<0 || a>b)
         T = -T;
       myFunction->Sum += T;
 	}
   }
-  
+
   end = clock();
   printf("                                               ---------------------RESULTATS--------------------- \n");
   printf("\n");
@@ -102,7 +104,7 @@ int main()
   printf("\n");
   printf("                                               --------------------------------------------------- \n");
   printf("\n");
-  
+
   delete myFunction;
   return 0;
 }
