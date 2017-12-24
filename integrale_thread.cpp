@@ -126,14 +126,12 @@ int main()
 
 
   // VARIABLES
-
   pthread_t thtab[NBTHREADS];
   clock_t begin, end;
   Function * myFunctions = new Function[NBTHREADS];
 
 
   // DECOUPAGE
-
   printf("\n");
   cout << "On va decouper le calcul en " << NBTHREADS << " thread(s) de " << partSize << " trapèzes chacun" << endl;
   printf("\n");
