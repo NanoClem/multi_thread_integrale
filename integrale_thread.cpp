@@ -12,6 +12,7 @@ using namespace std;
 #define NBITERATION 1000
 #define NBTHREADS 2
 
+
 // Afficher les infos relatives à la mémoire
 #define PRINT_MEM "\
 #!/bin/ \n\
@@ -95,18 +96,15 @@ void * Ttrapeze(void * _args)
   {
       xi = a+(b-a)*i / double(NBITERATION);               // On recalcule les bornes actuelles
       xj = a+(b-a)*(i+1) / double(NBITERATION);           // pour faire le calcul jusqu'à bmax
-      T = (xj-xi)/2.0f * (fn(xi,_p)+fn(xj,_p));
+      T  = (xj-xi)/2.0f * (fn(xi,_p)+fn(xj,_p));
 
       if(T<0 || a>b)
         T = -T;
 
       localSum += T;
   }
-  //printf("\n");
-  //printf("%Lf \n", localSum);
-  //printf("%Lf \n", temp_integral);
-  IntegralSum(localSum);
-  //printf("%Lf \n", temp_integral);
+
+  IntegralSum(localSum);    // Ajout du résultat local à la somme globale des intégrtales
   return(NULL);
 }
 
@@ -142,10 +140,10 @@ int main()
 
   for(size_t i=0; i<NBTHREADS; ++i)
   {
-    myFunctions[i] . min = 0;
-    myFunctions[i] . max = 5;
-    myFunctions[i] . bmin = partSize*i;
-    myFunctions[i] . bmax = partSize*(i+1);
+    myFunctions[i] . min = 0;                   // intervalle global de la fonction
+    myFunctions[i] . max = 5;                   // commun à tous les threads
+    myFunctions[i] . bmin = partSize*i;         // on repousse les bornes min et max locales de chaque structure pour avoir le bon intervalle de calcul
+    myFunctions[i] . bmax = partSize*(i+1);     // pour chaque thread et ainsi éviter de calculer sur le même intervalle
     myFunctions[i] . coef[0] = 5;
     myFunctions[i] . coef[1] = 2;
     myFunctions[i] . coef[2] = 20;
