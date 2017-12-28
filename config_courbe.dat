@@ -8,8 +8,8 @@ set xlabel 'nombre iteration'
 set ylabel 'temps execution'
 
 # SET THE RANGE FOR x AND y AXES
-set xrange[0:1000000]
-set yrange[-3:3]
+set xrange[0:10000000]
+set yrange[0:1]
 
 # LINE STYLE FOR AXES
 # Define a line style for axes (called 1)
@@ -28,7 +28,7 @@ set grid ytics
 set grid mxtics
 set grid mytics
 
-# SET THE LEGEND POSITION (right rop by default)
+# SET THE LEGEND POSITION (right top by default)
 #set key right top
 
 # ADD A LINE AT y = 1 CORRESPONDING TO O(1)
@@ -37,7 +37,7 @@ set grid mytics
 # lw = linewidth (set at 2)
 # linecolor = black
 # front = in front of anything else
-set arrow from graph 0, first 1 to graph 1, first 1 nohead lw 2 lc rgb "#000000" front
+# set arrow from graph 0, first 1 to graph 1, first 1 nohead lw 2 lc rgb "#000000" front
 
 # ADD A LABEL FOR THE PREVIOUS LINE
 # at 80% of the width and y = 1.5 (just above the line)
@@ -45,8 +45,7 @@ set label "O(1)" at graph 1, first 1
 
 
 # PLOT OUR DATTA
-# just a test for this one
-plot [t=0:10] sin(4*t), cos(4*t)
+plot "resultats.txt" u 1:2 w lp t "test"
 
 # CLOSE THE OUTPUT FILE
 set output

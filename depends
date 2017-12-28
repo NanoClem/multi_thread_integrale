@@ -1,2 +1,5 @@
-4_integrale_thread.o: 4_integrale_thread.cpp
 integrale_sequentiel.o: integrale_sequentiel.cpp
+integrale_thread.o: integrale_thread.cpp
+plot_curve.o: plot_curve.cpp
+Projet_OpenMP.o: Projet_OpenMP.cpp
+test.o: test.cpp
