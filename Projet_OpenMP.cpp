@@ -1,13 +1,65 @@
 #include <omp.h>
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
-#include <time.h>
+#include <stdexcept>
+#include <stdio.h>
+#include <math.h>
+#include <chrono>
 
 using namespace std;
 
-//VARIABLES GLOBALES
 
-#define NBITERATION 1000000
+
+// Afficher les infos relatives à la mémoire
+#define PRINT_MEM "\
+#!/bin/ \n\
+free -t\
+"
+
+
+// TEST DE L'EXISTENCE DU FICHIER CONTENANT LES RESULTATS DU CALCUL
+bool doExists(string filename)
+{
+  ifstream ifs(filename.c_str(), ios::in);
+  if(ifs)
+    return true;
+  else
+    return false;
+}
+
+
+// CREATION DU FICHIER DES RESULTATS
+void createFile(string filename)
+{
+  ofstream ofs(filename.c_str(), ios::out);
+  if(ofs)
+  {
+    cout << "fichier cree avec succes \n";
+    ofs.close();
+  }
+  else
+    throw runtime_error("Erreur : impossible de creer le fichier !");
+}
+
+
+// ECRIRE LES DONNEES DANS LE FICHIER DES RESULTATS
+void writeFileData(string filename, const unsigned int ITERATION, long double execTime)
+{
+  ofstream ofs;
+  ofs.open(filename.c_str(), ios::out | ios::app);          // on écrit à la fin du fichier avec "app" pour éviter l'overwrite
+  if(ofs)
+  {
+    ofs << ITERATION
+        << "   "
+        << execTime
+        << "\n";
+
+    ofs.close();
+  }
+  else
+    throw runtime_error("Erreur : impossible d'ecrire dans le fichier !");
+}
 
 
 //STRUCTURE DE DONNEES :
@@ -16,9 +68,9 @@ using namespace std;
 typedef struct
 {
   long double min, max;		//Bornes minorante et majorante de la fonction
-  double coef[3];           //Coefficients du polynôme
+  double coef[3];         //Coefficients du polynôme
   float bmin, bmax;		    //Borne minimal et maximal recalculées à chaque trapèze
-  long double Sum;	        //Somme final de l'intégrale
+  long double Sum;	      //Somme final de l'intégrale
 }Function;
 
 
@@ -41,23 +93,33 @@ long double fn(long double x, Function * _p)
 
 //FONCTION MAIN
 
-int main()
+int main(int argc, char * argv[])
 {
+  printf("\n");
 
-  clock_t begin, end;
+  // PARAMETRES DE CONSOLE
+  if(argc != 3)                                                         // argv[0] contient le nom de l'exécutable
+  {
+    cout << "Nombre d'arguments invalide, veuillez en renseigner le nombre de threads PUIS le nombre d'iteration \n";
+    cout << "\n";
+    exit(0);
+  }
+
+  const unsigned int NBTHREADS = atoi(argv[1]);                    // Nombre de threads, atoi permet de convettir argv[] en entier
+  const int NBITERATION        = atoi(argv[2]);                    // Nombre d'iteration
+  float partSize               = NBITERATION  / NBTHREADS;		     // Nombre de trapèzes calculés par thread
+
+
+
+  // CREATION D'UNE STRUCTURE POUR LA FONCTION
   Function * myFunction = new Function;
-  int nthread;
-
-  //DEMANDE DU NOMBRE DE THREADS
-  cout << "Combien voulez vous de threads? > ";
-  cin  >> nthread;
 
   //LA FONCTION POLYNOMIALE
   printf("\n");
   printFunction(myFunction);
 
   printf("\n");
-  cout << "On va decouper le calcul en " << nthread << " thread(s) de " << NBITERATION/nthread << " trapèzes chacun" << endl;
+  cout << "On va decouper le calcul en " << NBTHREADS << " thread(s) de " << NBITERATION/NBTHREADS << " trapèzes chacun" << endl;
   printf("\n");
 
   myFunction->min = 0;
@@ -73,17 +135,17 @@ int main()
   long double b = 5;
 
   //DEPART DU COMPTEUR
+  chrono::steady_clock::time_point begin = chrono::steady_clock::now();
 
-  begin=clock();
-
-  #pragma omp parallel sections num_threads(nthread)
+  //LANCEMENT DES THREADS
+  #pragma omp parallel sections num_threads(NBTHREADS)
   {
 
 	#pragma omp section
 	for(size_t i=0; i < size_t(NBITERATION); ++i)
 	{
-	  myFunction->bmin = (NBITERATION/nthread)*i;
-      myFunction->bmax = (NBITERATION/nthread)*(i+1);
+	  myFunction->bmin = (NBITERATION/NBTHREADS)*i;
+      myFunction->bmax = (NBITERATION/NBTHREADS)*(i+1);
       xi = a+(b-a)*i / double(NBITERATION);
       xj = a+(b-a)*(i+1) / double(NBITERATION);
 	  long double fxi = myFunction->coef[0]*(xi*xi) + myFunction->coef[1]*xi + myFunction->coef[2];
@@ -96,15 +158,39 @@ int main()
 	}
   }
 
-  end = clock();
+  //FIN DU COMPTEUR
+  chrono::steady_clock::time_point end = chrono::steady_clock::now();
+  chrono::duration<long double> time_span = chrono::duration_cast<chrono::duration<long double>>(end-begin);
+  long double exec_time = time_span.count();
+
+  delete [] myFunction;
+
+
   printf("                                               ---------------------RESULTATS--------------------- \n");
   printf("\n");
   printf("                                                 L'aire finale est de %Lf uA pour %d itération(s) \n", myFunction->Sum, NBITERATION);
-  printf("                                                 Le programme s'est exécuté en %Lf secondes \n", (long double)(end-begin)/CLOCKS_PER_SEC);
+  printf("                                                 Le programme s'est exécuté en %Lf secondes \n", exec_time);
   printf("\n");
   printf("                                               --------------------------------------------------- \n");
   printf("\n");
 
-  delete myFunction;
-  return 0;
+
+  //ECRITURE DES RESULTATS DANS UN FICHIER TXT
+  string filename = "resultats_OpenMP.txt";
+
+  if( doExists(filename) )
+    writeFileData(filename, NBITERATION, exec_time);
+  else
+  {
+    try {
+      createFile(filename);
+      writeFileData(filename, NBITERATION, exec_time);
+    }
+    catch(exception& e) {
+      cout << e.what() << endl;
+    }
+  }
+
+
+  return(EXIT_SUCCESS);
 }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
+#include <stdexcept>
 #include <cstdlib>
 #include <pthread.h>
 #include <mutex>
@@ -29,7 +30,6 @@ bool doExists(string filename)
 
 
 // CREATION DU FICHIER DES RESULTATS
-// avec une base définie
 void createFile(string filename)
 {
   ofstream ofs(filename.c_str(), ios::out);

@@ -19,7 +19,7 @@
 SHELL    = /bin/bash
 
 # REPLACE CPP by "C" to get gcc
-# Remove CXXFLAGS if running in C
+# Replace CXXFLAGS by CFLAGS if running in C
 
 VERSION  = CPP
 ifeq ($(VERSION),CPP)
@@ -35,7 +35,7 @@ THREAD   = -lpthread
 RM			 = rm -f
 
 # Put your C++ exe after EXECPP =
-EXECPP 	 = prog
+EXECPP 	 = prog_thread progOpenMP plotCurvExec prog_sequentiel fill_OpenMP_result
 
 
 
@@ -44,8 +44,19 @@ all :: $(EXECPP)
 %.o: %.c
 	$(CXX) -c $(CXXFLAGS) $*.cpp
 
+prog_sequentiel : integrale_sequentiel.o
+	$(CXX) -o $@  $^
 
-prog : integrale_thread.o
+prog_thread : integrale_thread.o
+	$(CXX) -o $@ $^ $(THREAD)
+
+progOpenMP : Projet_OpenMP.o
+	$(CXX) -o $@ $^ $(THREAD)
+
+plotCurvExec : plot_curve_thread.o
+	$(CXX) -o $@ $^ $(THREAD)
+
+fill_OpenMP_result : fill_OpenMP_result.o
 	$(CXX) -o $@ $^ $(THREAD)
 
 depends :

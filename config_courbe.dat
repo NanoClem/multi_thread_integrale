@@ -41,7 +41,7 @@ set grid mytics
 
 # ADD A LABEL FOR THE PREVIOUS LINE
 # at 80% of the width and y = 1.5 (just above the line)
-set label "O(1)" at graph 1, first 1
+# set label "O(1)" at graph 1, first 1
 
 
 # PLOT OUR DATTA

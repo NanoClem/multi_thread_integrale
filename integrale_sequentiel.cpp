@@ -1,10 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <stdio.h>
-// #include <unistd.h>
-// #include <pthread.h>
 #include <math.h>
-#include <time.h>
+#include <chrono>
 
 using namespace std;
 
@@ -68,15 +66,16 @@ void Ttrapeze(int n, Function * p)
 
 int main()
 {
-  clock_t temps;
-
   Function * f = new Function();
-  long int k = 1000;
+  long int k = 1000000000;
   f->borne_min = 0;
   f->borne_max = 5;  //3*M_PI/2;
   f->coef[0] = 5;
   f->coef[1] = 2;
   f->coef[2] = 20;
+
+  //DEPART DU COMPTEUR
+  chrono::steady_clock::time_point begin = chrono::steady_clock::now();
 
   Ttrapeze(k,f);
   long double aireT = f->integrale;
@@ -85,8 +84,12 @@ int main()
 
   delete [] f;
 
-  temps = clock();
-  printf("Le programme s'est execute en %f secondes \n", (double)temps/CLOCKS_PER_SEC);
+  //FIN DU COMPTEUR
+  chrono::steady_clock::time_point end = chrono::steady_clock::now();
+  chrono::duration<long double> time_span = chrono::duration_cast<chrono::duration<long double>>(end-begin);
+  long double exec_time = time_span.count();
+
+  printf("Le programme s'est execute en %Lf secondes \n", exec_time);
 
   return 0;
 }
