@@ -100,7 +100,7 @@ int main(int argc, char * argv[])
   // PARAMETRES DE CONSOLE
   if(argc != 3)                                                         // argv[0] contient le nom de l'exécutable
   {
-    cout << "Nombre d'arguments invalide, veuillez en renseigner le nombre de threads PUIS le nombre d'iteration \n";
+    cout << "Nombre d'arguments invalide, veuillez renseigner le nombre de threads PUIS le nombre d'iteration \n";
     cout << "\n";
     exit(0);
   }

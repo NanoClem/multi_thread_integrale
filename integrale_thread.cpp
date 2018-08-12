@@ -67,7 +67,7 @@ mutex mtx;
 
 
 //VARIABLES GLOBALES
-long double temp_integral = 0;					      // Valeur finale de l'intégrale
+long double final_integral = 0;					      // Valeur finale de l'intégrale
 
 
 
@@ -80,7 +80,7 @@ typedef struct
   long double min, max;		          // Bornes minorante et majorante de la fonction
   double coef[3];			              // Coefficients du polynôme
   float bmin, bmax;                 // Intervalle sur lequel le calcul de l'intégrale est effectué
-  int ITERATION;              // Nombre d'itérations de la fonction
+  int ITERATION;                    // Nombre d'itérations de la fonction
 }Function;
 
 
@@ -107,23 +107,21 @@ long double fn(long double x, Function * _p)
 
 
 
-//SOMME DES INTEGRALES : avec la variable globale temp_integral
-// La variable temp_integrale étant globale, elle est partagée entre tous les threads
+//SOMME DES INTEGRALES : avec la variable globale final_integral
+// La variable final_integral étant globale, elle est partagée entre tous les threads
 // on a donc une zone d'exclusion mutuelle avec un mutex
 void IntegralSum(long double localDataSum)
 {
   mtx.lock();
-  temp_integral += localDataSum;
+  final_integral += localDataSum;
   mtx.unlock();
-
-  //printf("Somme des intégrales = %Lf \n", temp_integral);
 }
 
 
 
 
 //FONCTION THREAD : calcul de l'integrale de chaque trapèze et additionne le résultat avec
-// la variable globale temp_integrale pour chaque itération
+// la variable globale final_integrale pour chaque itération
 void * Ttrapeze(void * _args)
 {
   Function * _p = (Function *) _args;
@@ -166,7 +164,7 @@ int main(int argc, char * argv[])
   // PARAMETRES DE CONSOLE
   if(argc != 3)                                                         // argv[0] contient le nom de l'exécutable
   {
-    cout << "Nombre d'arguments invalide, veuillez en renseigner le nombre de threads PUIS le nombre d'iteration \n";
+    cout << "Nombre d'arguments invalide, veuillez renseigner le nombre de threads PUIS le nombre d'iteration \n";
     cout << "\n";
     exit(0);
   }
@@ -260,7 +258,7 @@ int main(int argc, char * argv[])
 
   printf("                                               ---------------------RESULTATS--------------------- \n");
   printf("\n");
-  printf("                                                 L'aire finale est de %Lf uA pour %d itération(s) \n", temp_integral, NBITERATION);
+  printf("                                                 L'aire finale est de %Lf uA pour %d itération(s) \n", final_integral, NBITERATION);
   printf("                                                 Le programme s'est exécuté en %Lf secondes \n", exec_time);
   printf("\n");
   printf("                                               --------------------------------------------------- \n");

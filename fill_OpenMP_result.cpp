@@ -90,6 +90,6 @@ int main()
     cout << e.what() << endl;
   }
 
-  system("rm temp_OpenMP.txt");
+  system("rm temp_OpenMp.txt");
   return 0;
 }

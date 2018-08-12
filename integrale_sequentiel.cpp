@@ -8,6 +8,7 @@ using namespace std;
 
 
 
+
 //Strcuture de données de la fonction
 
 typedef struct
@@ -64,12 +65,24 @@ void Ttrapeze(int n, Function * p)
 
 //MAIN
 
-int main()
+int main(int argc, char * argv[])
 {
+  printf("\n");
+
+  // PARAMETRES DE CONSOLE
+  if(argc != 2)                                                         // argv[0] contient le nom de l'exécutable
+  {
+    cout << "Nombre d'arguments invalide, veuillez renseigner le nombre d'iteration \n";
+    cout << "\n";
+    exit(0);
+  }
+
+  const unsigned int NBITERATION = atoi(argv[1]);
+
   Function * f = new Function();
-  long int k = 1000000000;
+  const unsigned int k = NBITERATION;
   f->borne_min = 0;
-  f->borne_max = 5;  //3*M_PI/2;
+  f->borne_max = 5;
   f->coef[0] = 5;
   f->coef[1] = 2;
   f->coef[2] = 20;
